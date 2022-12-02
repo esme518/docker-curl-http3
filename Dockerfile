@@ -55,12 +55,20 @@ RUN set -ex \
   && ldd /usr/local/bin/curl |cut -d ">" -f 2|grep lib|cut -d "(" -f 1|xargs tar -chvf /tmp/curl.tar \
   && tar -xvf /tmp/curl.tar -C /build \
   && cp --parents /usr/local/bin/* /build \
+  && export runDeps="$( \
+     scanelf --needed --nobanner usr/local/lib/* usr/local/bin/* \
+      | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+      | xargs -r apk info --installed \
+      | sort -u | grep -v libcurl \
+     )" \
+  && echo $runDeps > usr/local/run-deps \
   && tree
 
-FROM alpine
-COPY --from=builder /build/usr /usr
+FROM alpine:edge
+COPY --from=builder /build/usr/local /usr/local
 
 RUN set -ex \
-  && apk add --update --no-cache \
-     ca-certificates \
+  && export runDeps="$(cat /usr/local/run-deps)" \
+  && apk add --update --no-cache --virtual .run-deps $runDeps \
+  && apk add --update --no-cache ca-certificates \
   && rm -rf /tmp/* /var/cache/apk/*
