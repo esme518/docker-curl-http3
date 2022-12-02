@@ -26,14 +26,9 @@ RUN set -ex \
      zlib-dev \
   && rm -rf /tmp/* /var/cache/apk/*
 
-WORKDIR /tmp
-RUN set -ex \
-  && git clone https://github.com/wolfSSL/wolfssl.git \
-  && git clone https://github.com/ngtcp2/ngtcp2.git \
-  && git clone https://github.com/curl/curl.git
-
 WORKDIR /tmp/wolfssl
 RUN set -ex \
+  && git clone https://github.com/wolfSSL/wolfssl.git . \
   && git checkout $(git tag | grep stable | sort -V | tail -1) \
   && autoreconf -fi \
   && ./configure --enable-quic --enable-session-ticket --enable-earlydata --enable-psk --enable-harden --enable-altcertchains \
@@ -41,6 +36,7 @@ RUN set -ex \
 
 WORKDIR /tmp/ngtcp2
 RUN set -ex \
+  && git clone https://github.com/ngtcp2/ngtcp2.git . \
   && git checkout $(git tag | sort -V | tail -1) \
   && autoreconf -fi \
   && ./configure --enable-lib-only --with-wolfssl \
@@ -48,6 +44,7 @@ RUN set -ex \
 
 WORKDIR /tmp/curl
 RUN set -ex \
+  && git clone https://github.com/curl/curl.git . \
   && git checkout $(git tag | egrep ^curl- | sort -V | tail -1) \
   && autoreconf -fi \
   && ./configure --with-wolfssl --with-nghttp3 --with-ngtcp2 \
