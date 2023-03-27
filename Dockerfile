@@ -23,6 +23,7 @@ RUN set -ex \
      perl \
      pkgconf \
      tree \
+     util-linux \
      zlib-dev \
   && rm -rf /tmp/* /var/cache/apk/*
 
