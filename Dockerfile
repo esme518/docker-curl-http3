@@ -13,6 +13,8 @@ RUN set -ex \
      git \
      libc-dev \
      libev-dev \
+     libgsasl-dev \
+     libpsl-dev \
      libtool \
      linux-headers \
      make \
